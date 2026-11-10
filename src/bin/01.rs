@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 advent_of_code::solution!(1);
 
 #[derive(Debug)]
@@ -32,13 +34,18 @@ impl Direction {
 pub struct Santa {
     pub heading: Direction,
     pub position: (i64, i64),
+    memory: BTreeSet<(i64, i64)>,
 }
 
 impl Santa {
     pub fn new() -> Self {
+        let initial = (0, 0);
+        let mut memory = BTreeSet::new();
+        memory.insert(initial);
         Santa {
-            position: (0, 0),
+            position: initial,
             heading: Direction::N,
+            memory,
         }
     }
     pub fn go(&mut self, direction: &str) {
@@ -85,6 +92,63 @@ impl Santa {
         // dbg!(&self);
     }
 
+    pub fn go_and_watch_for_dups(&mut self, direction: &str) -> Option<u64> {
+        // ugh, implementation of p1 made this nasty
+        let magnitude = direction[1..].parse::<i64>().unwrap();
+        let step = match &direction[0..1] {
+            "R" => match self.heading {
+                Direction::N => {
+                    self.heading = Direction::E;
+                    (1, 0)
+                }
+                Direction::S => {
+                    self.heading = Direction::W;
+                    (-1, 0)
+                }
+                Direction::E => {
+                    self.heading = Direction::S;
+                    (0, 1)
+                }
+                Direction::W => {
+                    self.heading = Direction::N;
+                    (0, -1)
+                }
+            },
+            "L" => match self.heading {
+                Direction::N => {
+                    self.heading = Direction::W;
+                    (-1, 0)
+                }
+                Direction::S => {
+                    self.heading = Direction::E;
+                    (1, 0)
+                }
+                Direction::E => {
+                    self.heading = Direction::N;
+                    (0, -1)
+                }
+                Direction::W => {
+                    self.heading = Direction::S;
+                    (0, 1)
+                }
+            },
+            _ => unreachable!(),
+        };
+
+        for _ in 0..magnitude {
+            // dbg!(&self.memory);
+            self.position.0 += step.0;
+            self.position.1 += step.1;
+            if self.memory.contains(&self.position) {
+                println!("re-visited {:?}", &self.position);
+                return Some(self.final_distance());
+            } else {
+                self.memory.insert(self.position);
+            }
+        }
+        None
+    }
+
     pub fn final_distance(&self) -> u64 {
         self.position.0.abs() as u64 + self.position.1.abs() as u64
     }
@@ -100,6 +164,12 @@ pub fn part_one(input: &str) -> Option<u64> {
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
+    let mut santa = Santa::new();
+    for d in input.trim().split(", ") {
+        if let Some(final_distance) = santa.go_and_watch_for_dups(d) {
+            return Some(final_distance);
+        }
+    }
     None
 }
 
@@ -117,9 +187,10 @@ mod tests {
         assert_eq!(result, Some(expected));
     }
 
-    #[test]
-    fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+    #[rstest]
+    #[case("R8, R4, R4, R8", 4)]
+    fn test_part_two(#[case] input: &str, #[case] expected: u64) {
+        let result = part_two(input);
+        assert_eq!(result, Some(expected));
     }
 }
