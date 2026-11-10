@@ -1,0 +1,125 @@
+advent_of_code::solution!(1);
+
+#[derive(Debug)]
+pub enum Direction {
+    N,
+    S,
+    E,
+    W,
+}
+
+impl Direction {
+    pub fn next(self, turn: &str) -> Direction {
+        match turn {
+            "R" => match self {
+                Direction::N => Self::E,
+                Direction::S => Self::W,
+                Direction::E => Self::S,
+                Direction::W => Self::N,
+            },
+            "L" => match self {
+                Direction::N => Self::W,
+                Direction::S => Self::E,
+                Direction::E => Self::N,
+                Direction::W => Self::S,
+            },
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Santa {
+    pub heading: Direction,
+    pub position: (i64, i64),
+}
+
+impl Santa {
+    pub fn new() -> Self {
+        Santa {
+            position: (0, 0),
+            heading: Direction::N,
+        }
+    }
+    pub fn go(&mut self, direction: &str) {
+        let magnitude = direction[1..].parse::<i64>().unwrap();
+        match &direction[0..1] {
+            "R" => match self.heading {
+                Direction::N => {
+                    self.heading = Direction::E;
+                    self.position.0 += magnitude
+                }
+                Direction::S => {
+                    self.heading = Direction::W;
+                    self.position.0 -= magnitude
+                }
+                Direction::E => {
+                    self.heading = Direction::S;
+                    self.position.1 += magnitude;
+                }
+                Direction::W => {
+                    self.heading = Direction::N;
+                    self.position.1 -= magnitude;
+                }
+            },
+            "L" => match self.heading {
+                Direction::N => {
+                    self.heading = Direction::W;
+                    self.position.0 -= magnitude
+                }
+                Direction::S => {
+                    self.heading = Direction::E;
+                    self.position.0 += magnitude
+                }
+                Direction::E => {
+                    self.heading = Direction::N;
+                    self.position.1 -= magnitude;
+                }
+                Direction::W => {
+                    self.heading = Direction::S;
+                    self.position.1 += magnitude;
+                }
+            },
+            _ => unreachable!(),
+        };
+        // dbg!(&self);
+    }
+
+    pub fn final_distance(&self) -> u64 {
+        self.position.0.abs() as u64 + self.position.1.abs() as u64
+    }
+}
+
+pub fn part_one(input: &str) -> Option<u64> {
+    let mut santa = Santa::new();
+    input.trim().split(", ").for_each(|d| {
+        santa.go(d);
+    });
+    // dbg!(&santa);
+    Some(santa.final_distance())
+}
+
+pub fn part_two(input: &str) -> Option<u64> {
+    None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::rstest;
+
+    #[rstest]
+    #[case("R2, L3", 5)]
+    #[case("R2, R2, R2", 2)]
+    #[case("R5, L5, R5, R3", 12)]
+    fn test_part_one(#[case] input: &str, #[case] expected: u64) {
+        let result = part_one(input);
+        assert_eq!(result, Some(expected));
+    }
+
+    #[test]
+    fn test_part_two() {
+        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, None);
+    }
+}
