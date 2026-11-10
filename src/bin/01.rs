@@ -140,7 +140,7 @@ impl Santa {
             self.position.0 += step.0;
             self.position.1 += step.1;
             if self.memory.contains(&self.position) {
-                println!("re-visited {:?}", &self.position);
+                // println!("re-visited {:?}", &self.position);
                 return Some(self.final_distance());
             } else {
                 self.memory.insert(self.position);
