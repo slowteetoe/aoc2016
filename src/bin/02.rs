@@ -46,8 +46,50 @@ pub fn part_one(input: &str) -> Option<String> {
     Some(code.join(""))
 }
 
-pub fn part_two(input: &str) -> Option<u64> {
-    None
+pub fn part_two(input: &str) -> Option<String> {
+    let keypad = BTreeMap::from([
+        ((0, 2), "1"),
+        ((1, 1), "2"),
+        ((1, 2), "3"),
+        ((1, 3), "4"),
+        ((2, 0), "5"),
+        ((2, 1), "6"),
+        ((2, 2), "7"),
+        ((2, 3), "8"),
+        ((2, 4), "9"),
+        ((3, 1), "A"),
+        ((3, 2), "B"),
+        ((3, 3), "C"),
+        ((4, 2), "D"),
+    ]);
+    let mut curr = (1, 1); // start at "5"
+    let code = input
+        .trim()
+        .lines()
+        .map(|line| {
+            let mut terminus = "";
+            line.chars().for_each(|c| {
+                let delta = match c {
+                    'L' => (0, -1),
+                    'R' => (0, 1),
+                    'U' => (-1, 0),
+                    'D' => (1, 0),
+                    _ => unreachable!(),
+                };
+                let next_pos = (curr.0 + delta.0, curr.1 + delta.1);
+                // println!(
+                //     "At {:?} with instruction {c} so looking {:?} to {:?}",
+                //     &curr, &delta, &next_pos
+                // );
+                if let Some(valid_key) = keypad.get(&next_pos) {
+                    curr = next_pos;
+                    terminus = *valid_key;
+                }
+            });
+            terminus
+        })
+        .collect_vec();
+    Some(code.join(""))
 }
 
 #[cfg(test)]
