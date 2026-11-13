@@ -150,7 +150,13 @@ impl Santa {
     }
 
     pub fn final_distance(&self) -> u64 {
-        self.position.0.abs() as u64 + self.position.1.abs() as u64
+        self.position.0.abs().cast_unsigned() + self.position.1.abs().cast_unsigned()
+    }
+}
+
+impl Default for Santa {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
