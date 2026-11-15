@@ -33,3 +33,10 @@ tinyjson = "2.5.1"
 itertools = "0.15.0"
 rstest = "0.28.0"
 regex = "1.13.1"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "parse_day_4"
+harness = false
