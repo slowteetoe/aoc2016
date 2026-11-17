@@ -12,10 +12,23 @@ pub mod day4 {
         LazyLock::new(|| Regex::new(r"^([a-z]+(?:-[a-z]+)*)-(\d+)\[([a-z]+)\]$").unwrap());
 
     // Stage 1: split a line into (encoded name, sector, checksum).
+    // hqcfqwydw-fbqijys-whqii-huiuqhsx-660[qhiwf]
     pub fn parse_line(input: &str) -> (&str, u32, &str) {
         let caps = RE.captures(input).expect("failed to parse the input row");
         let (_, [encoded, sector, checksum]) = caps.extract();
         (encoded, sector.parse().unwrap(), checksum)
+    }
+
+    pub fn parse_line_no_regex(input: &str) -> (&str, u32, &str) {
+        let (lhs, rhs) = input
+            .split_once("[")
+            .expect("should have split on left bracket");
+        let (encoded, sector) = lhs.rsplit_once("-").expect("should have split on sector");
+        let sector = sector.parse().expect("should have parsed numerical sector");
+        let checksum = rhs
+            .strip_suffix("]")
+            .expect("should have removed right bracket");
+        (encoded, sector, checksum)
     }
 
     /// Stage 2: count letters (dashes ignored).
@@ -61,7 +74,7 @@ pub mod day4 {
     }
 
     pub fn parse_checksum(input: &str) -> u32 {
-        let (encoded, sector, checksum) = parse_line(input);
+        let (encoded, sector, checksum) = parse_line_no_regex(input);
         let char_map = count_letters_arr(encoded);
         let mut ranked_chars = ranked_letters(char_map);
 
