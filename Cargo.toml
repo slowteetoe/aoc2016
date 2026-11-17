@@ -40,3 +40,6 @@ criterion = "0.5"
 [[bench]]
 name = "parse_day_4"
 harness = false
+
+[profile.bench]
+debug = true
