@@ -36,6 +36,7 @@ regex = "1.13.1"
 fast-md5 = "1.0.0"
 hex = "0.4.3"
 itoa = "1.0.19"
+bitvec = "1.1.1"
 
 [dev-dependencies]
 criterion = "0.5"
