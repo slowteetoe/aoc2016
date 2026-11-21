@@ -151,7 +151,7 @@ pub fn part_two(input: &str) -> Option<u64> {
         grid.apply(&i);
     }
     println!("{grid}");
-    None
+    Some(0)
 }
 
 #[cfg(test)]
