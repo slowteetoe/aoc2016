@@ -50,13 +50,48 @@ fn process_line(input: &str) -> u64 {
     }
     letter_count
 }
+fn process_line_p2(input: &str) -> u64 {
+    let buf = input.as_bytes();
+    let mut idx = 0;
+    let mut total = 0u64;
+
+    while idx < buf.len() {
+        if buf[idx] == b'(' {
+            let close = idx
+                + buf[idx..]
+                    .iter()
+                    .position(|&b| b == b')')
+                    .expect("unterminated marker");
+            let (lhs, rhs) = input[idx + 1..close]
+                .split_once('x')
+                .expect("should have had AxB");
+            let repeat: usize = lhs.parse().expect("bad repeat");
+            let times: u64 = rhs.parse().expect("bad times");
+
+            let start = close + 1;
+            let end = (start + repeat).min(buf.len());
+
+            // the only change from part 1: recurse instead of `(end - start) as u64`
+            total += process_line_p2(&input[start..end]) * times;
+            idx = end;
+        } else {
+            total += 1;
+            idx += 1;
+        }
+    }
+    total
+}
 
 pub fn part_one(input: &str) -> Option<u64> {
     input.trim().lines().map(process_line).reduce(|a, b| a + b)
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
-    None
+    input
+        .trim()
+        .lines()
+        .map(process_line_p2)
+        .reduce(|a, b| a + b)
 }
 
 #[cfg(test)]
